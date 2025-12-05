@@ -1,12 +1,11 @@
-// routes/predictRoutes.js
+// routes/acquireRoutes.js
 const express = require("express");
 const router = express.Router();
 
-const predictController = require("../controllers/predictController");
+const AcquireController = require("../controllers/acquireController");
 
-// Contrato del servicio PREDICT
-router.get("/health", predictController.health);
-router.get("/ready", predictController.ready);
-router.post("/predict", predictController.doPredict);
+// Contrato del servicio
+router.get("/health", AcquireController.health);
+router.post("/data", AcquireController.doAcquire);
 
 module.exports = router;

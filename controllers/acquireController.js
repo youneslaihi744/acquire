@@ -1,101 +1,52 @@
-// controllers/predictController.js
-const { getModelInfo, predict } = require("../services/tfModelService");
-const Predict = require('../mongoDB');
+// controllers/acquireController.js
+require("dotenv").config();
+
+const KUNNA_URL = process.env.KUNNA_URL;
+
+const ALIAS = process.env.ALIAS;
+
+const Acquire = require('../mongoDB');
+
+const Fetch=require('../services/Fetch');
+
 
 function health(req, res) {
   res.json({
     status: "ok",
-    service: "predict"
+    service: "acquire"
   });
 }
+async function doAcquire(req, res) {
+  const fecha = new Date();
+  const hora = fecha.getHours(); // 0–23
 
-function ready(req, res) {
-  const info = getModelInfo();
+  let start = new Date();
+  let end = new Date();
 
-  if (!info.ready) {
-    return res.status(503).json({
-      ready: false,
-      modelVersion: info.modelVersion,
-      message: "Model is still loading"
-    });
+  if (hora < 23) {
+    start.setDate(fecha.getDate() - 4);
+    end.setDate(fecha.getDate() - 1);
+  } else {
+    start.setDate(fecha.getDate() - 3);
   }
-
-  res.json({
-    ready: true,
-    modelVersion: info.modelVersion
-  });
-}
-
-async function doPredict(req, res) {
-  const start = Date.now();
 
   try {
-    const info = getModelInfo();
-    if (!info.ready) {
-      return res.status(503).json({
-        error: "Model not ready",
-        ready: false
-      });
-    }
+    // Llamada a Kunna
+    const results = await Fetch.fetchKunna(start, end);
 
-    const { features, meta } = req.body;
-
-    if (!features) {
-      return res.status(400).json({ error: "Missing features" });
-    }
-    if (!meta || typeof meta !== "object") {
-      return res.status(400).json({ error: "Missing meta object" });
-    }
-
-    const { featureCount } = meta;
-
-    if (featureCount !== info.inputDim) {
-      return res.status(400).json({
-        error: `featureCount must be ${info.inputDim}, received ${featureCount}`
-      });
-    }
-
-    if (!Array.isArray(features) || features.length !== info.inputDim) {
-      return res.status(400).json({
-        error: `features must be an array of ${info.inputDim} numbers`
-      });
-    }
-
-    const prediction = await predict(features);
-    const latencyMs = Date.now() - start;
-    const timestamp = new Date().toISOString();
-
-    let prediction1 = new Predict({
-      result: prediction,
-      timestamp
+    // Respondemos en JSON
+    res.status(200).json({
+      start: start.toISOString(),
+      end: end.toISOString(),
+      results
     });
-    prediction1.save()
-      .then(id => {
-        console.log('Se ha guardado Correctamente');
-        res.status(201).json({
-          predictionId: id._id,
-          prediction,
-          timestamp,
-          latencyMs
-        });
-      }).catch(err => {
-        console.error('Error de guardar en DB:', err);
-        res.status(201).json({
-          predictionId: null,
-          prediction,
-          timestamp,
-          latencyMs
-        });
-      });
-    
   } catch (err) {
-    console.error("Error en /predict:", err);
-    res.status(500).json({ error: "Internal error" });
+    console.error("Error al obtener datos de Kunna:", err);
+    res.status(500).json({ error: "Failed to fetch data from Kunna" });
   }
-}
 
+}
 module.exports = {
   health,
-  ready,
-  doPredict
+  doAcquire
 };

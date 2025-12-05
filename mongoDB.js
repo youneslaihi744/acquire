@@ -11,9 +11,8 @@ mongoose.connect(MONGO_URI)
     });
 
 const Schema = mongoose.Schema;
-const PredictSchema = new Schema({
-    result: { type: Number, required: true },
-    timestamp: String,
+const AcquireSchema = new Schema({
+    feature: { type: Array, required: true },
 });
 
-module.exports = mongoose.model('Predict', PredictSchema);
+module.exports = mongoose.model('Acquire', AcquireSchema);
