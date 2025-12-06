@@ -29,21 +29,34 @@ async function doAcquire(req, res) {
   } else {
     start.setDate(fecha.getDate() - 3);
   }
-
+  let results;
   try {
     // Llamada a Kunna
-    const results = await Fetch.fetchKunna(start, end);
-
-    // Respondemos en JSON
-    res.status(200).json({
-      start: start.toISOString(),
-      end: end.toISOString(),
-      results
-    });
+    results = await Fetch.fetchKunna(start, end);
   } catch (err) {
     console.error("Error al obtener datos de Kunna:", err);
-    res.status(500).json({ error: "Failed to fetch data from Kunna" });
+    res.status(502).json({ error: "Failed to fetch data from Kunna" });
   }
+  const features=[results.values[0][2],results.values[1][2],results.values[2][2],hora,fecha.getDay(),fecha.getMonth(),fecha.getDate()];
+  let MongoSave = new Acquire({
+      feature:features
+    });
+    MongoSave.save()
+      .then(id => {
+        console.log('Se ha guardado Correctamente');
+        res.status(201).json({
+          dataId:id._id,
+          features,
+          featureCount:7,
+          scalerVersion:'v1',
+          createdAt:fecha
+
+        });
+      }).catch(err => {
+        console.error('Error de guardar en DB:', err);
+        res.status(500).json({error:"Error al procesar o guardar en MongoDB."
+        });
+      });
 
 }
 module.exports = {
