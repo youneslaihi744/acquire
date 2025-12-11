@@ -13,6 +13,7 @@ mongoose.connect(MONGO_URI)
 const Schema = mongoose.Schema;
 const AcquireSchema = new Schema({
     feature: { type: Array, required: true },
+    fecha: {type: Date, required: true}
 });
 
 module.exports = mongoose.model('Acquire', AcquireSchema);

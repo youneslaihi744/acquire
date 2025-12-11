@@ -39,7 +39,8 @@ async function doAcquire(req, res) {
   }
   const features=[results.values[0][2],results.values[1][2],results.values[2][2],hora,fecha.getDay(),fecha.getMonth(),fecha.getDate()];
   let MongoSave = new Acquire({
-      feature:features
+      feature:features,
+      fecha:fecha
     });
     MongoSave.save()
       .then(id => {
