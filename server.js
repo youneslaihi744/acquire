@@ -4,21 +4,21 @@ require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
-const acquireRoutes = require("./routes/acquireRoutes");
+const OrquestatorRoutes = require("./routes/OrquestatorRoutes");
 
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 app.use(express.json());
 
 
 
-// Rutas del servicio PREDICT
-app.use("/", acquireRoutes);
 
-// Arranque del servidor + carga del modelo
+app.use("/", OrquestatorRoutes);
+
+
 app.listen(PORT, async () => {
   const serverUrl = `http://localhost:${PORT}`;
-  console.log(`[ACQUIRE] Servicio escuchando en ${serverUrl}`);
+  console.log(`[ORQUISTATOR] Servicio escuchando en ${serverUrl}`);
 });
