@@ -18,6 +18,8 @@
   "homepage": "https://github.com/youneslaihi744/acquire#readme",
   "dependencies": {
     "dotenv": "^17.2.3",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.0.0"
   }
 }
