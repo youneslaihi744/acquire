@@ -1,5 +1,5 @@
 // server.js
-// Entry point del servicio PREDICT
+// Entry point del servicio ACQUIRE
 require("dotenv").config();
 
 const express = require("express");
@@ -14,7 +14,7 @@ app.use(express.json());
 
 
 
-// Rutas del servicio PREDICT
+// Rutas del servicio ACQUIRE
 app.use("/", acquireRoutes);
 
 // Arranque del servidor + carga del modelo
